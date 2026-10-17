@@ -1,1 +1,53 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Camera Photo</title>
+</head>
+<body style="font-family: sans-serif; text-align: center; padding: 20px">
+  <h2>ছবি তুলুন</h2>
+  <p>ক্যামেরার অনুমতি দিয়ে ছবি তুলুন।</p>
 
+  <video id="camera" autoplay playsinline
+    style="width:100%;max-width:400px"></video>
+  <br><br>
+  <button id="start">ক্যামেরা চালু করুন</button>
+  <button id="take">ছবি তুলুন</button>
+  <canvas id="canvas" hidden></canvas>
+  <p id="status"></p>
+
+  <script>
+    const video = document.getElementById('camera');
+    const canvas = document.getElementById('canvas');
+    const status = document.getElementById('status');
+
+    document.getElementById('start').onclick = async () => {
+      try {
+        video.srcObject = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+          audio: false
+        });
+        status.textContent = 'ক্যামেরা চালু হয়েছে।';
+      } catch {
+        status.textContent = 'ক্যামেরার অনুমতি দিন।';
+      }
+    };
+
+    document.getElementById('take').onclick = () => {
+      if (!video.videoWidth) {
+        status.textContent = 'আগে ক্যামেরা চালু করুন।';
+        return;
+      }
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      const link = document.createElement('a');
+      link.download = 'photo.jpg';
+      link.href = canvas.toDataURL('image/jpeg');
+      link.click();
+      status.textContent = 'ছবি তোলা হয়েছে এবং ডাউনলোড হয়েছে।';
+    };
+  </script>
+</body>
+</html>
